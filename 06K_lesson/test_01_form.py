@@ -1,11 +1,15 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.edge.service import Service
 
 
 @pytest.fixture
 def driver():
-    driver = webdriver.Chrome()
+
+    service = Service(executable_path="06K_lesson/msedgedriver.exe")
+    options = webdriver.EdgeOptions()
+    driver = webdriver.Edge(service=service, options=options)
     driver.maximize_window()
     yield driver
     driver.quit()
@@ -29,13 +33,16 @@ def test_fill_form(driver):
 
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
-    pole_z = driver.find_element(By.ID, "zip-code").get_attribute("class")
-    assert pole_z == "alert py-2 alert-danger"
+    zip_code_class = driver.find_element(
+        By.ID, "zip-code").get_attribute("class")
+    assert "alert-danger" in zip_code_class
 
-    poles = [
-        "#first-name", "#last-name", "#address", "#city",
-        "#country", "#e-mail", "#phone", "#company"]
-    for pole in poles:
-        pole_class = driver.find_element(
-            By.CSS_SELECTOR, pole).get_attribute("class")
-        assert pole_class == "alert py-2 alert-success"
+    fields_to_check = [
+        "first-name", "last-name", "address", "city",
+        "country", "e-mail", "phone", "company"
+    ]
+
+    for field_id in fields_to_check:
+        field_class = driver.find_element(
+            By.ID, field_id).get_attribute("class")
+        assert "alert-success" in field_class
